@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vision-webapp
+  labels:
+    app: vision
+    role: frontend
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: "http-server"
+  selector:
+    app: vision
+    role: frontend
+
+---
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: vision-webapp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: vision
+        role: frontend
+    spec:
+      containers:
+      - name: ision-webapp
+        image: gcr.io/visionproject-266515/vision-webapp
+        imagePullPolicy: Always
+        env:
+        - name: PORT
+          value: "8080"
+        - name: REDIS_HOST
+          value: redis-master
+        - name: GCLOUD_PROJECT
+          value: visionproject-266515
+        ports:
+        - name: http-server
+          containerPort: 8080
